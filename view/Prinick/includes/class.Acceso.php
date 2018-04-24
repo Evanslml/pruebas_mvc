@@ -11,9 +11,9 @@ class Acceso
 	protected $email;
 	public function __construct($a,$b,$email)
 	{
-		$this->user =$a;
-		$this->pass =$b;
-		$this->email =$email;
+		$this->user =mysqli_real_escape_string(htmlspecialchars($a)); //PARA EVITAR EL INYECCION SQL
+		$this->pass =mysqli_real_escape_string(htmlspecialchars($b));
+		$this->email =mysqli_real_escape_string(htmlspecialchars($email));
 	}
 	
 	public function Login()
@@ -24,7 +24,8 @@ class Acceso
 		//$dato['nombre'];
 		//$dato['password'];
 
-		if(strtolower($dato['nombre'])==strtolower($this->user) and strtolower($dato['password'])==strtolower($this->pass))  {
+		//if(strtolower($dato['nombre'])==strtolower($this->user) and strtolower($dato['password'])==strtolower($this->pass))  {
+		if($db->rows($sql)>0)  {
 			//echo 'Iniciaste sesion';
 			session_start();
 			$_SESSION['user'] = $this->user;
@@ -40,7 +41,8 @@ class Acceso
 		$sql = $db->query("SELECT nombre,email FROM usuarios WHERE nombre='$this->user' OR email='$this->email';");
 		$existe= $db->recorrer($sql);
 
-		if(strtolower($existe['nombre']) != strtolower($this->user) AND strtolower($existe['email']) != strtolower($this->email)) {
+		//if(strtolower($existe['nombre']) != strtolower($this->user) AND strtolower($existe['email']) != strtolower($this->email)) {
+		if($db->rows($sql)==0) {
 			$db->query("INSERT INTO usuarios (nombre,password,email) VALUES ('$this->user','$this->pass','$this->email');");
 			session_start();
 			$_SESSION['user']=$this->user;
@@ -61,7 +63,8 @@ class Acceso
 		$sql=$db->query("SELECT email FROM usuarios WHERE email='$this->email';");
 		$existe = $db->recorrer($sql);
 
-		if(strtolower($existe['email'])==strtolower($this->email)){
+		//if(strtolower($existe['email'])==strtolower($this->email)){
+		if($db->rows($sql) > 0 ){
 			include('includes/class.Generar.Pass.php');
 			$passw = new GenerarPass();
 			$password= $passw->NuevaPass(11); //El 11 es aleatorio puede ser cualquiera
